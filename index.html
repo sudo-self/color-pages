@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Coloring Sheets Gallery</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f5f7fa;
+        color: #333;
+        line-height: 1.6;
+        padding: 16px;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 20px;
+        padding: 20px;
+        background-color: #6c5ce7;
+        color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        font-size: 1.8rem;
+        margin-bottom: 6px;
+      }
+
+      .gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+        margin-bottom: 40px;
+      }
+
+      .thumbnail {
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: transform 0.25s ease;
+        background: white;
+      }
+
+      .thumbnail:hover {
+        transform: scale(1.04);
+      }
+
+      .thumbnail img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        display: block;
+      }
+
+      /* Modal */
+      .modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background-color: rgba(0, 0, 0, 0.9);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .modal-content {
+        max-width: 100%;
+        max-height: 85vh;
+        border-radius: 8px;
+      }
+
+      .close {
+        position: absolute;
+        top: 12px;
+        right: 20px;
+        color: #fff;
+        font-size: 32px;
+        font-weight: bold;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      /* Print controls */
+      .print-controls {
+        position: fixed;
+        bottom: 15px;
+        right: 15px;
+        background-color: white;
+        padding: 12px 16px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        z-index: 1100;
+      }
+
+      .print-btn {
+        background-color: #6c5ce7;
+        color: white;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 15px;
+        transition: background-color 0.3s;
+      }
+
+      .print-btn:hover {
+        background-color: #5245c5;
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 1.4rem;
+        }
+        .thumbnail img {
+          height: 120px;
+        }
+        .print-controls {
+          bottom: 10px;
+          right: 10px;
+          padding: 10px 12px;
+        }
+        .print-btn {
+          font-size: 14px;
+          padding: 8px 14px;
+        }
+      }
+
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+        .modal,
+        .modal * {
+          visibility: visible;
+        }
+        .modal {
+          position: absolute;
+          inset: 0;
+          background-color: white;
+          padding: 0;
+        }
+        .close,
+        .print-controls {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Coloring Sheets Gallery</h1>
+      <p>Tap or click any image to enlarge and print</p>
+    </header>
+
+    <div class="gallery" id="gallery"></div>
+
+    <!-- Modal -->
+    <div class="modal" id="imageModal" role="dialog" aria-modal="true">
+      <span class="close" id="closeModal" aria-label="Close">&times;</span>
+      <img
+        class="modal-content"
+        id="modalImage"
+        alt="Enlarged coloring sheet"
+      />
+    </div>
+
+    <!-- Print button -->
+    <div class="print-controls">
+      <button class="print-btn" id="printBtn">Print Current Image</button>
+    </div>
+
+    <script>
+      const coloringSheets = [
+        "./123.jpg",
+        "./456.jpg",
+        "./789.jpg",
+        "./111.jpg",
+        "./1.jpg",
+        "./2.jpg",
+        "./3.jpg",
+        "./4.jpg",
+        "./5.jpg",
+        "./001.jpg",
+        "./002.jpg",
+        "./003.jpg",
+        "./004.jpg",
+        "./005.jpg",
+        "./007.jpg",
+        "./008.jpg",
+        "./009.jpg",
+        "./010.jpg",
+        "./011.jpg",
+        "./999.jpg",
+        "./123.jpg",
+        "./456.jpg",
+        "./789.jpg",
+        "./111.jpg",
+        "./1.jpg",
+        "./2.jpg",
+        "./3.jpg",
+        "./4.jpg",
+        "./5.jpg",
+        "./001.jpg",
+        "./002.jpg",
+        "./003.jpg",
+        "./004.jpg",
+        "./005.jpg",
+      ];
+
+      const gallery = document.getElementById("gallery");
+      const modal = document.getElementById("imageModal");
+      const modalImage = document.getElementById("modalImage");
+      const closeModal = document.getElementById("closeModal");
+      const printBtn = document.getElementById("printBtn");
+
+      // Populate gallery
+      coloringSheets.forEach((sheet) => {
+        const thumbnail = document.createElement("div");
+        thumbnail.className = "thumbnail";
+        const img = document.createElement("img");
+        img.src = sheet;
+        img.alt = "Coloring Sheet";
+        thumbnail.appendChild(img);
+        gallery.appendChild(thumbnail);
+
+        thumbnail.addEventListener("click", () => {
+          modal.style.display = "flex";
+          modalImage.src = sheet;
+        });
+      });
+
+      closeModal.addEventListener("click", () => {
+        modal.style.display = "none";
+      });
+
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+          modal.style.display = "none";
+        }
+      });
+
+      printBtn.addEventListener("click", () => {
+        if (!modalImage.src) {
+          alert("Please select an image first.");
+          return;
+        }
+        alert(
+          "Make sure your printer at 10.0.0.99 is set as the default before printing.",
+        );
+        window.print();
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && modal.style.display === "flex") {
+          modal.style.display = "none";
+        }
+      });
+    </script>
+  </body>
+</html>
+
+
+

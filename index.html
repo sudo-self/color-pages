@@ -181,42 +181,31 @@
     </div>
 
     <script>
+      // Use absolute paths for GitHub Pages repo: /color-pages/
+      const basePath = "/color-pages/";
+
       const coloringSheets = [
-        "./123.jpg",
-        "./456.jpg",
-        "./789.jpg",
-        "./111.jpg",
-        "./1.jpg",
-        "./2.jpg",
-        "./3.jpg",
-        "./4.jpg",
-        "./5.jpg",
-        "./001.jpg",
-        "./002.jpg",
-        "./003.jpg",
-        "./004.jpg",
-        "./005.jpg",
-        "./007.jpg",
-        "./008.jpg",
-        "./009.jpg",
-        "./010.jpg",
-        "./011.jpg",
-        "./999.jpg",
-        "./123.jpg",
-        "./456.jpg",
-        "./789.jpg",
-        "./111.jpg",
-        "./1.jpg",
-        "./2.jpg",
-        "./3.jpg",
-        "./4.jpg",
-        "./5.jpg",
-        "./001.jpg",
-        "./002.jpg",
-        "./003.jpg",
-        "./004.jpg",
-        "./005.jpg",
-      ];
+        "123.jpg",
+        "456.jpg",
+        "789.jpg",
+        "111.jpg",
+        "1.jpg",
+        "2.jpg",
+        "3.jpg",
+        "4.jpg",
+        "5.jpg",
+        "001.jpg",
+        "002.jpg",
+        "003.jpg",
+        "004.jpg",
+        "005.jpg",
+        "007.jpg",
+        "008.jpg",
+        "009.jpg",
+        "010.jpg",
+        "011.jpg",
+        "999.jpg"
+      ].map(file => basePath + file);
 
       const gallery = document.getElementById("gallery");
       const modal = document.getElementById("imageModal");
@@ -255,9 +244,6 @@
           alert("Please select an image first.");
           return;
         }
-        alert(
-          "Make sure your printer at 10.0.0.99 is set as the default before printing.",
-        );
         window.print();
       });
 
@@ -269,6 +255,7 @@
     </script>
   </body>
 </html>
+
 
 
 

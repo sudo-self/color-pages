@@ -63,15 +63,18 @@
 
       /* Modal */
       .modal {
-        display: none;
+        display: none; /* hidden by default */
         position: fixed;
         inset: 0;
         background-color: rgba(0, 0, 0, 0.9);
         z-index: 1000;
-        display: flex;
         align-items: center;
         justify-content: center;
         padding: 20px;
+      }
+
+      .modal.show {
+        display: flex; /* only show when active */
       }
 
       .modal-content {
@@ -181,31 +184,28 @@
     </div>
 
     <script>
-      // Use absolute paths for GitHub Pages repo: /color-pages/
-      const basePath = "/color-pages/";
-
       const coloringSheets = [
-        "123.jpg",
-        "456.jpg",
-        "789.jpg",
-        "111.jpg",
-        "1.jpg",
-        "2.jpg",
-        "3.jpg",
-        "4.jpg",
-        "5.jpg",
-        "001.jpg",
-        "002.jpg",
-        "003.jpg",
-        "004.jpg",
-        "005.jpg",
-        "007.jpg",
-        "008.jpg",
-        "009.jpg",
-        "010.jpg",
-        "011.jpg",
-        "999.jpg"
-      ].map(file => basePath + file);
+        "./123.jpg",
+        "./456.jpg",
+        "./789.jpg",
+        "./111.jpg",
+        "./1.jpg",
+        "./2.jpg",
+        "./3.jpg",
+        "./4.jpg",
+        "./5.jpg",
+        "./001.jpg",
+        "./002.jpg",
+        "./003.jpg",
+        "./004.jpg",
+        "./005.jpg",
+        "./007.jpg",
+        "./008.jpg",
+        "./009.jpg",
+        "./010.jpg",
+        "./011.jpg",
+        "./999.jpg",
+      ];
 
       const gallery = document.getElementById("gallery");
       const modal = document.getElementById("imageModal");
@@ -224,18 +224,20 @@
         gallery.appendChild(thumbnail);
 
         thumbnail.addEventListener("click", () => {
-          modal.style.display = "flex";
-          modalImage.src = sheet;
+          modalImage.src = sheet; // set image first
+          modal.classList.add("show"); // then display modal
         });
       });
 
       closeModal.addEventListener("click", () => {
-        modal.style.display = "none";
+        modal.classList.remove("show");
+        modalImage.src = ""; // clear when closing
       });
 
       modal.addEventListener("click", (e) => {
         if (e.target === modal) {
-          modal.style.display = "none";
+          modal.classList.remove("show");
+          modalImage.src = "";
         }
       });
 
@@ -244,17 +246,22 @@
           alert("Please select an image first.");
           return;
         }
+        alert(
+          "Make sure your printer at 10.0.0.99 is set as the default before printing."
+        );
         window.print();
       });
 
       document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && modal.style.display === "flex") {
-          modal.style.display = "none";
+        if (e.key === "Escape" && modal.classList.contains("show")) {
+          modal.classList.remove("show");
+          modalImage.src = "";
         }
       });
     </script>
   </body>
 </html>
+
 
 
 

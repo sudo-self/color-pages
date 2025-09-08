@@ -12,8 +12,11 @@
       }
 
       body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        font-family: "Comic Sans MS", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         background-color: #f5f7fa;
+        background-image: radial-gradient(#6c5ce7 0.5px, transparent 0.5px), radial-gradient(#6c5ce7 0.5px, #f5f7fa 0.5px);
+        background-size: 20px 20px;
+        background-position: 0 0, 10px 10px;
         color: #333;
         line-height: 1.6;
         padding: 16px;
@@ -34,6 +37,38 @@
         margin-bottom: 6px;
       }
 
+      .tabs {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+        gap: 10px;
+      }
+
+      .tab-btn {
+        padding: 10px 20px;
+        background-color: #fff;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        font-family: inherit;
+        font-weight: bold;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: all 0.3s;
+      }
+
+      .tab-btn.active {
+        background-color: #ffbe76;
+        color: #fff;
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
       .gallery {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -48,6 +83,7 @@
         cursor: pointer;
         transition: transform 0.25s ease;
         background: white;
+        position: relative;
       }
 
       .thumbnail:hover {
@@ -59,6 +95,22 @@
         height: 150px;
         object-fit: cover;
         display: block;
+      }
+
+      .recent-badge {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background-color: #ff6b6b;
+        color: white;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: bold;
       }
 
       /* Modal */
@@ -104,6 +156,9 @@
         border-radius: 10px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         z-index: 1100;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
       }
 
       .print-btn {
@@ -121,6 +176,47 @@
         background-color: #5245c5;
       }
 
+      .upload-btn {
+        background-color: #ffbe76;
+        color: white;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 15px;
+        transition: background-color 0.3s;
+      }
+
+      .upload-btn:hover {
+        background-color: #f39c12;
+      }
+
+      .upload-container {
+        display: none;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px auto;
+        max-width: 500px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .upload-container.active {
+        display: block;
+      }
+
+      .upload-form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .upload-form input {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+
       @media (max-width: 600px) {
         h1 {
           font-size: 1.4rem;
@@ -133,7 +229,7 @@
           right: 10px;
           padding: 10px 12px;
         }
-        .print-btn {
+        .print-btn, .upload-btn {
           font-size: 14px;
           padding: 8px 14px;
         }
@@ -152,21 +248,50 @@
           inset: 0;
           background-color: white;
           padding: 0;
+          display: flex !important;
         }
         .close,
         .print-controls {
           display: none;
+        }
+        .modal-content {
+          max-width: 100%;
+          max-height: 100%;
+          object-fit: contain;
         }
       }
     </style>
   </head>
   <body>
     <header>
-      <h1>Coloring Sheets Gallery</h1>
+      <h1>🌈 Coloring Sheets Gallery</h1>
       <p>Tap or click any image to enlarge and print</p>
     </header>
 
-    <div class="gallery" id="gallery"></div>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="all">All Sheets</button>
+      <button class="tab-btn" data-tab="recent">Recently Printed</button>
+      <button class="tab-btn" data-tab="upload">Add New Sheet</button>
+    </div>
+
+    <div class="tab-content active" id="all-tab">
+      <div class="gallery" id="gallery"></div>
+    </div>
+
+    <div class="tab-content" id="recent-tab">
+      <div class="gallery" id="recent-gallery"></div>
+    </div>
+
+    <div class="tab-content" id="upload-tab">
+      <div class="upload-container" id="uploadContainer">
+        <h2>Add Your Own Coloring Sheet</h2>
+        <form class="upload-form" id="uploadForm">
+          <input type="file" id="imageUpload" accept="image/*" required>
+          <input type="text" id="imageName" placeholder="Name your coloring sheet" required>
+          <button type="submit" class="upload-btn">Upload Sheet</button>
+        </form>
+      </div>
+    </div>
 
     <!-- Modal -->
     <div class="modal" id="imageModal" role="dialog" aria-modal="true">
@@ -181,10 +306,12 @@
     <!-- Print button -->
     <div class="print-controls">
       <button class="print-btn" id="printBtn">Print Current Image</button>
+      <button class="upload-btn" id="showUploadBtn">Add New Sheet</button>
     </div>
 
     <script>
-      const coloringSheets = [
+      // Initialize coloring sheets
+      let coloringSheets = [
         "./123.jpg",
         "./456.jpg",
         "./789.jpg",
@@ -207,37 +334,154 @@
         "./999.jpg",
       ];
 
+      // Get recently printed from localStorage or initialize empty array
+      let recentlyPrinted = JSON.parse(localStorage.getItem('recentlyPrinted')) || [];
+      
+      // Get user uploaded images from localStorage or initialize empty array
+      let userUploads = JSON.parse(localStorage.getItem('userUploads')) || [];
+      
+      // Combine all images
+      let allSheets = [...coloringSheets, ...userUploads];
+
       const gallery = document.getElementById("gallery");
+      const recentGallery = document.getElementById("recent-gallery");
       const modal = document.getElementById("imageModal");
       const modalImage = document.getElementById("modalImage");
       const closeModal = document.getElementById("closeModal");
       const printBtn = document.getElementById("printBtn");
+      const showUploadBtn = document.getElementById("showUploadBtn");
+      const uploadContainer = document.getElementById("uploadContainer");
+      const uploadForm = document.getElementById("uploadForm");
+      const tabBtns = document.querySelectorAll('.tab-btn');
+      const tabContents = document.querySelectorAll('.tab-content');
+      let currentImage = '';
 
-      // Populate gallery
-      coloringSheets.forEach((sheet) => {
+      // Populate galleries
+      function populateGalleries() {
+        // Clear galleries
+        gallery.innerHTML = '';
+        recentGallery.innerHTML = '';
+        
+        // Update all sheets
+        allSheets = [...coloringSheets, ...userUploads];
+        
+        // Populate main gallery
+        allSheets.forEach((sheet, index) => {
+          createThumbnail(sheet, gallery, index);
+        });
+        
+        // Populate recent gallery
+        recentlyPrinted.forEach(sheet => {
+          createThumbnail(sheet, recentGallery);
+        });
+      }
+
+      function createThumbnail(sheet, container, index = null) {
         const thumbnail = document.createElement("div");
         thumbnail.className = "thumbnail";
         const img = document.createElement("img");
         img.src = sheet;
         img.alt = "Coloring Sheet";
         thumbnail.appendChild(img);
-        gallery.appendChild(thumbnail);
+        
+        // Add recent badge if this is a recently printed image
+        if (index !== null && recentlyPrinted.includes(sheet)) {
+          const badge = document.createElement("div");
+          badge.className = "recent-badge";
+          badge.innerHTML = "✓";
+          thumbnail.appendChild(badge);
+        }
+        
+        container.appendChild(thumbnail);
 
         thumbnail.addEventListener("click", () => {
-          modalImage.src = sheet; // set image first
-          modal.classList.add("show"); // then display modal
+          currentImage = sheet;
+          modalImage.src = sheet;
+          modal.classList.add("show");
         });
+      }
+
+      // Tab functionality
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tabId = btn.getAttribute('data-tab');
+          
+          // Update active tab button
+          tabBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          
+          // Update active tab content
+          tabContents.forEach(content => content.classList.remove('active'));
+          document.getElementById(`${tabId}-tab`).classList.add('active');
+          
+          // Special case for upload tab
+          if (tabId === 'upload') {
+            uploadContainer.classList.add('active');
+          } else {
+            uploadContainer.classList.remove('active');
+          }
+        });
+      });
+
+      // Show upload form
+      showUploadBtn.addEventListener('click', () => {
+        tabBtns.forEach(b => b.classList.remove('active'));
+        tabContents.forEach(content => content.classList.remove('active'));
+        
+        document.querySelector('[data-tab="upload"]').classList.add('active');
+        document.getElementById('upload-tab').classList.add('active');
+        uploadContainer.classList.add('active');
+      });
+
+      // Upload form handling
+      uploadForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const fileInput = document.getElementById('imageUpload');
+        const nameInput = document.getElementById('imageName');
+        
+        if (fileInput.files && fileInput.files[0]) {
+          const reader = new FileReader();
+          
+          reader.onload = function(e) {
+            const newImage = {
+              name: nameInput.value || 'User Upload',
+              data: e.target.result
+            };
+            
+            // Add to user uploads
+            userUploads.push(newImage.data);
+            localStorage.setItem('userUploads', JSON.stringify(userUploads));
+            
+            // Update galleries
+            allSheets = [...coloringSheets, ...userUploads];
+            populateGalleries();
+            
+            // Reset form
+            uploadForm.reset();
+            
+            // Show success message
+            alert('Your coloring sheet has been added successfully!');
+            
+            // Switch back to all sheets tab
+            tabBtns.forEach(b => b.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            document.querySelector('[data-tab="all"]').classList.add('active');
+            document.getElementById('all-tab').classList.add('active');
+          };
+          
+          reader.readAsDataURL(fileInput.files[0]);
+        }
       });
 
       closeModal.addEventListener("click", () => {
         modal.classList.remove("show");
-        modalImage.src = ""; // clear when closing
       });
 
       modal.addEventListener("click", (e) => {
         if (e.target === modal) {
           modal.classList.remove("show");
-          modalImage.src = "";
         }
       });
 
@@ -246,18 +490,30 @@
           alert("Please select an image first.");
           return;
         }
-        alert(
-          "Make sure your printer at 10.0.0.99 is set as the default before printing."
-        );
+        
+        // Add to recently printed
+        if (currentImage && !recentlyPrinted.includes(currentImage)) {
+          recentlyPrinted.unshift(currentImage);
+          // Keep only the 5 most recent
+          if (recentlyPrinted.length > 5) {
+            recentlyPrinted.pop();
+          }
+          localStorage.setItem('recentlyPrinted', JSON.stringify(recentlyPrinted));
+          populateGalleries();
+        }
+        
+        alert("Make sure your printer is set as the default before printing.");
         window.print();
       });
 
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape" && modal.classList.contains("show")) {
           modal.classList.remove("show");
-          modalImage.src = "";
         }
       });
+
+      // Initialize the galleries
+      populateGalleries();
     </script>
   </body>
 </html>
